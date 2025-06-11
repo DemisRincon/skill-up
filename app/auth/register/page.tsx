@@ -24,12 +24,15 @@ export default function RegisterPage() {
         e.preventDefault();
         setError(null);
         setLoading(true);
+        console.log(email, password, fullName, role);
 
         try {
             const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
             });
+            console.log(data);
+            console.log(signUpError);
             if (signUpError) throw signUpError;
             const user = data.user;
             if (!user) throw new Error('User registration failed.');
@@ -39,12 +42,21 @@ export default function RegisterPage() {
                 .select('id')
                 .eq('name', role)
                 .single();
-            if (roleError || !roleData) throw roleError || new Error('Role not found');
+
+            if (roleError) {
+                console.error('Role fetch error:', roleError);
+                throw new Error(`Failed to fetch role: ${roleError.message}`);
+            }
+
+            if (!roleData) {
+                throw new Error(`Role '${role}' not found in the database. Please contact support.`);
+            }
 
             const { error: profileError } = await supabase.from('profiles').insert({
                 id: user.id,
                 role_id: roleData.id,
                 full_name: fullName,
+                email: user.email
             });
             if (profileError) throw profileError;
 

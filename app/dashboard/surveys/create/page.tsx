@@ -22,9 +22,23 @@ export default function CreateSurveyPage() {
         setLoading(true);
         setError(null);
 
+        // Validate required fields
+        if (!title.trim()) {
+            setError('Please enter a survey title');
+            setLoading(false);
+            return;
+        }
+
         // Ensure all 3 questions are filled
         if (questions.some(q => q.trim() === '')) {
             setError('Please fill in all 3 questions.');
+            setLoading(false);
+            return;
+        }
+
+        // Ensure at least one team member is selected
+        if (selectedUsers.length === 0) {
+            setError('Please select at least one team member');
             setLoading(false);
             return;
         }
@@ -36,22 +50,44 @@ export default function CreateSurveyPage() {
             if (userError) throw userError;
             if (!user) throw new Error('No user found');
 
+            // Debug log to check selected users
+            console.log('Selected users:', selectedUsers);
+
             // Create a survey for each selected user
-            const surveysToInsert = selectedUsers.map(member => ({
-                title,
-                manager_id: user.id,
-                questions: questions,
-                team_member_email: member.email,
-                responded: false,
-                batch_id: batchId,
-                created_at: new Date().toISOString()
-            }));
+            const surveysToInsert = selectedUsers
+                .filter(member => {
+                    if (!member.email) {
+                        console.error('User without email found:', member);
+                        return false;
+                    }
+                    return true;
+                })
+                .map(member => ({
+                    title,
+                    manager_id: user.id,
+                    questions: questions,
+                    team_member_email: member.email,
+                    responded: false,
+                    batch_id: batchId,
+                    created_at: new Date().toISOString()
+                }));
+
+            // Debug log to check surveys to insert
+            console.log('Surveys to insert:', surveysToInsert);
+
+            // Check if we have any valid surveys to insert
+            if (surveysToInsert.length === 0) {
+                throw new Error('No valid team members selected. Please ensure all selected members have email addresses.');
+            }
 
             const { error: surveyError } = await supabase
                 .from('surveys')
                 .insert(surveysToInsert);
 
-            if (surveyError) throw surveyError;
+            if (surveyError) {
+                console.error('Survey creation error:', surveyError);
+                throw new Error(surveyError.message);
+            }
 
             router.push('/dashboard/survey');
         } catch (err) {

@@ -35,11 +35,18 @@ export function UserAutocomplete({
             try {
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('id, email, full_name')
+                    .select('id, full_name, email')
+                    .not('email', 'is', null)
                     .order('full_name', { ascending: true });
 
                 if (error) throw error;
-                setUsers(data || []);
+
+                // Debug log to check the data
+                console.log('Fetched users:', data);
+
+                // Filter out any users without email addresses just to be safe
+                const validUsers = data?.filter(user => user.email) || [];
+                setUsers(validUsers);
             } catch (error) {
                 console.error('Error fetching users:', error);
             } finally {
@@ -51,6 +58,8 @@ export function UserAutocomplete({
     }, []);
 
     const filteredUsers = users.filter(user => {
+        if (!user.email) return false;  // Skip users without email addresses
+
         const matchesQuery =
             user.email.toLowerCase().includes(query.toLowerCase()) ||
             (user.full_name && user.full_name.toLowerCase().includes(query.toLowerCase()));
@@ -59,6 +68,11 @@ export function UserAutocomplete({
     });
 
     const handleSelect = (user: User) => {
+        if (!user.email) {
+            console.error('Cannot select user without email address');
+            return;
+        }
+
         if (multiple) {
             setSelectedUsers([...selectedUsers, user]);
         } else {
