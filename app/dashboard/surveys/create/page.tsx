@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { DashboardLayout } from '@/app/components/layouts/DashboardLayout';
 import { Input } from '@/app/components/ui/Input';
 import { Button } from '@/app/components/ui/Button';
 import { UserAutocomplete } from '@/app/components/ui/UserAutocomplete';
@@ -121,57 +120,57 @@ export default function CreateSurveyPage() {
 
     if (loading) {
         return (
-            <DashboardLayout>
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-xl">Loading...</div>
-                </div>
-            </DashboardLayout>
+
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-xl">Loading...</div>
+            </div>
+
         );
     }
 
     return (
-        <DashboardLayout>
-            <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
-                <h1 className="text-2xl font-bold mb-6">Create Survey</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input
-                        label="Survey Title"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        required
-                        placeholder="Enter survey title"
-                    />
-                    <UserAutocomplete
-                        label="Send to Users"
-                        selectedUsers={selectedUsers}
-                        setSelectedUsers={setSelectedUsers}
-                        multiple
-                    />
-                    <div>
-                        <label className="block font-medium mb-1">Questions</label>
-                        {questions.map((q, idx) => (
-                            <div key={idx} className="flex items-center mb-2">
-                                <input
-                                    type="text"
-                                    value={q}
-                                    onChange={e => handleQuestionChange(idx, e.target.value)}
-                                    className="flex-1 border rounded px-2 py-1"
-                                    placeholder={`Question ${idx + 1}`}
-                                    required
-                                />
-                                {questions.length > 1 && (
-                                    <button type="button" onClick={() => removeQuestion(idx)} className="ml-2 text-red-500">Remove</button>
-                                )}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addQuestion} className="mt-2 text-indigo-600">+ Add Question</button>
-                    </div>
-                    {error && <div className="text-red-600 text-sm">{error}</div>}
-                    <Button type="submit" isLoading={loading} fullWidth>
-                        Create Survey
-                    </Button>
-                </form>
-            </div>
-        </DashboardLayout>
+
+        <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
+            <h1 className="text-2xl font-bold mb-6">Create Survey</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                    label="Survey Title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    required
+                    placeholder="Enter survey title"
+                />
+                <UserAutocomplete
+                    label="Send to Users"
+                    selectedUsers={selectedUsers}
+                    setSelectedUsers={setSelectedUsers}
+                    multiple
+                />
+                <div>
+                    <label className="block font-medium mb-1">Questions</label>
+                    {questions.map((q, idx) => (
+                        <div key={idx} className="flex items-center mb-2">
+                            <input
+                                type="text"
+                                value={q}
+                                onChange={e => handleQuestionChange(idx, e.target.value)}
+                                className="flex-1 border rounded px-2 py-1"
+                                placeholder={`Question ${idx + 1}`}
+                                required
+                            />
+                            {questions.length > 1 && (
+                                <button type="button" onClick={() => removeQuestion(idx)} className="ml-2 text-red-500">Remove</button>
+                            )}
+                        </div>
+                    ))}
+                    <button type="button" onClick={addQuestion} className="mt-2 text-indigo-600">+ Add Question</button>
+                </div>
+                {error && <div className="text-red-600 text-sm">{error}</div>}
+                <Button type="submit" isLoading={loading} fullWidth>
+                    Create Survey
+                </Button>
+            </form>
+        </div>
+
     );
 } 

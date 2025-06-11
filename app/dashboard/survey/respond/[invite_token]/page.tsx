@@ -65,44 +65,50 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
         }
     };
 
-    if (loading) return <div className="max-w-xl mx-auto p-8">Loading...</div>;
-    if (error) return <div className="max-w-xl mx-auto p-8 text-red-600">{error}</div>;
-    if (submitted) return <div className="max-w-xl mx-auto p-8 text-green-700">Thank you for your feedback!</div>;
-
     return (
-        <div className="max-w-xl mx-auto p-8">
-            <h1 className="text-2xl font-bold mb-4">Leadership Feedback Survey</h1>
-            <p className="mb-4">Hi {invite.team_member_name}, please rate the following statements from 1 (Strongly Disagree) to 5 (Strongly Agree):</p>
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {[1, 2, 3].map(i => (
-                    <div key={i}>
-                        <label className="block font-medium mb-1">Question {i}</label>
-                        <div className="flex gap-2">
-                            {[1, 2, 3, 4, 5].map(val => (
-                                <label key={val} className="flex flex-col items-center">
-                                    <input
-                                        type="radio"
-                                        name={`q${i}`}
-                                        value={val}
-                                        checked={answers[`q${i}` as 'q1' | 'q2' | 'q3'] === val}
-                                        onChange={() => handleChange(`q${i}` as 'q1' | 'q2' | 'q3', val)}
-                                        required
-                                    />
-                                    <span>{val}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-                {error && <div className="text-red-600 text-sm">{error}</div>}
-                <button
-                    type="submit"
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                    disabled={loading}
-                >
-                    Submit
-                </button>
-            </form>
-        </div>
+        <>
+            {loading ? (
+                <div className="max-w-xl mx-auto p-8">Loading...</div>
+            ) : error ? (
+                <div className="max-w-xl mx-auto p-8 text-red-600">{error}</div>
+            ) : submitted ? (
+                <div className="max-w-xl mx-auto p-8 text-green-700">Thank you for your feedback!</div>
+            ) : (
+                <div className="max-w-xl mx-auto p-8">
+                    <h1 className="text-2xl font-bold mb-4">Leadership Feedback Survey</h1>
+                    <p className="mb-4">Hi {invite.team_member_name}, please rate the following statements from 1 (Strongly Disagree) to 5 (Strongly Agree):</p>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i}>
+                                <label className="block font-medium mb-1">Question {i}</label>
+                                <div className="flex gap-2">
+                                    {[1, 2, 3, 4, 5].map(val => (
+                                        <label key={val} className="flex flex-col items-center">
+                                            <input
+                                                type="radio"
+                                                name={`q${i}`}
+                                                value={val}
+                                                checked={answers[`q${i}` as 'q1' | 'q2' | 'q3'] === val}
+                                                onChange={() => handleChange(`q${i}` as 'q1' | 'q2' | 'q3', val)}
+                                                required
+                                            />
+                                            <span>{val}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                        {error && <div className="text-red-600 text-sm">{error}</div>}
+                        <button
+                            type="submit"
+                            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                            disabled={loading}
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            )}
+        </>
     );
 } 

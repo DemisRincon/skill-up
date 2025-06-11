@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { DashboardLayout } from '@/app/components/layouts/DashboardLayout';
 import { Button } from '@/app/components/ui/Button';
 
 export default function DashboardPage() {
@@ -69,25 +68,25 @@ export default function DashboardPage() {
     }
 
     return (
-        <DashboardLayout>
-            <div className="px-4 py-6 sm:px-0">
-                <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 p-4">
-                    <h2 className="text-2xl font-bold mb-4">Welcome to Skill Up Leader</h2>
-                    <p className="text-gray-600 mb-2">
-                        This is where you'll manage your surveys and team members.
-                    </p>
-                    <div className="mt-4 text-gray-700">
-                        <span className="font-semibold">Logged in as:</span> {user?.user_metadata?.name || user?.email}
-                    </div>
-                    {isManager && (
-                        <div className="mt-6">
-                            <Button onClick={() => router.push('/dashboard/surveys/create')} fullWidth>
-                                Create Survey
-                            </Button>
-                        </div>
-                    )}
+
+        <div className="px-4 py-6 sm:px-0">
+            <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 p-4">
+                <h2 className="text-2xl font-bold mb-4">Welcome to Skill Up Leader</h2>
+                <p className="text-gray-600 mb-2">
+                    This is where you'll manage your surveys and team members.
+                </p>
+                <div className="mt-4 text-gray-700">
+                    <span className="font-semibold">Logged in as:</span> {user?.user_metadata?.name || user?.email}
                 </div>
+                {isManager && (
+                    <div className="mt-6">
+                        <Button onClick={() => router.push('/dashboard/surveys/create')} fullWidth>
+                            Create Survey
+                        </Button>
+                    </div>
+                )}
             </div>
-        </DashboardLayout>
+        </div>
+
     );
 } 

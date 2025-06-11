@@ -30,8 +30,8 @@ export default function Sidebar() {
                         </Link>
                     </li>
                     <li>
-                        <Link href="/survey" className="block px-4 py-2 hover:bg-gray-700 rounded">
-                            <span className={collapsed ? 'hidden' : ''}>All Surveys</span>
+                        <Link href="/dashboard/survey" className="block px-4 py-2 hover:bg-gray-700 rounded">
+                            <span className={collapsed ? 'hidden' : ''}>My Surveys</span>
                             <span className={collapsed ? '' : 'hidden'}>📋</span>
                         </Link>
                     </li>
