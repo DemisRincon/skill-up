@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-
 import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/app/components/layouts/AuthLayout';
 import { Input } from '@/app/components/ui/Input';
 import { Select } from '@/app/components/ui/Select';
-import { Button } from '@/app/components/ui/Button';
+import { Button } from '@/components/ui/button';
+
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');

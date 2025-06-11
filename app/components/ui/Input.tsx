@@ -1,4 +1,5 @@
 import { InputHTMLAttributes } from 'react';
+import { cn } from "@/lib/utils";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -13,20 +14,18 @@ export function Input({
     className = '',
     ...props
 }: InputProps) {
-    const baseStyles = 'appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm';
-    const errorStyles = error ? 'border-red-300' : 'border-gray-300';
-    const widthClass = fullWidth ? 'w-full' : '';
-    const roundedStyles = props.type === 'password' ? 'rounded-b-md' : 'rounded-md';
+    const baseStyles = 'block w-full rounded-md border bg-white px-3 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500';
+    const errorStyles = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300';
 
     return (
-        <div className={widthClass}>
+        <div className={cn(fullWidth && "w-full")}>
             {label && (
                 <label htmlFor={props.id} className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
                 </label>
             )}
             <input
-                className={`${baseStyles} ${errorStyles} ${roundedStyles} ${className}`}
+                className={cn(baseStyles, errorStyles, className)}
                 {...props}
             />
             {error && (

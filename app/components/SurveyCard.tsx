@@ -9,17 +9,16 @@ interface SurveyCardProps {
 }
 
 export const SurveyCard = ({ survey, currentUserEmail }: SurveyCardProps) => {
-    console.log(survey);
     if (!survey) return null;
     return (
-        <Card>
+        <Card className="h-full">
             <CardHeader>
-                <CardTitle>{survey.title}</CardTitle>
+                <CardTitle className="line-clamp-1">{survey.title}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 h-full">
-                <p className="text-gray-600">{survey.description}</p>
-                <div className="flex justify-between items-center">
-                    <p className="text-gray-600">{survey.team_member_email}</p>
+            <CardContent className="space-y-4">
+                <p className="text-gray-600 line-clamp-2">{survey.description}</p>
+                <div className="flex flex-col  justify-center items-start pt-2 gap-2">
+                    <p className="text-sm text-gray-500">{survey.team_member_email}</p>
                     {survey.team_member_email === currentUserEmail && (
                         <Link href={`/dashboard/pending/${survey.id}`}>
                             <Button>Respond to Survey</Button>

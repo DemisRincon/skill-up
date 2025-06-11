@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(true);
-    const [pendingCount, setPendingCount] = useState(0);
+
     const [userRole, setUserRole] = useState<'manager' | 'team_member' | null>(null);
 
     useEffect(() => {
@@ -50,24 +50,6 @@ export default function Sidebar() {
 
                 setUserRole(role.name as 'manager' | 'team_member');
 
-
-                if (role.name === 'manager') {
-                    // For managers: count pending responses in surveys
-                    const { count } = await supabase
-                        .from('surveys')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('manager_id', user.id)
-                        .eq('responded', false);
-                    setPendingCount(count || 0);
-                } else {
-                    // For team members: count their pending surveys
-                    const { count } = await supabase
-                        .from('surveys')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('team_member_email', user.email)
-                        .eq('responded', false);
-                    setPendingCount(count || 0);
-                }
             } catch (error) {
                 console.error('Error fetching pending count:', error);
             }
@@ -125,19 +107,11 @@ export default function Sidebar() {
                         <Link href="/dashboard/pending" className="block px-4 py-2 hover:bg-gray-700 rounded relative">
                             <span className={collapsed ? 'hidden' : ''}>
                                 {userRole === 'manager' ? 'Pending Responses' : 'Pending Surveys'}
-                                {pendingCount > 0 && (
-                                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                                        {pendingCount}
-                                    </span>
-                                )}
+
                             </span>
                             <span className={collapsed ? '' : 'hidden'}>
                                 🔔
-                                {pendingCount > 0 && (
-                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                                        {pendingCount}
-                                    </span>
-                                )}
+
                             </span>
                         </Link>
                     </li>

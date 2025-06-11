@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/ui/Input';
 import { Label } from '@/app/components/ui/Label';
 import { UserAutocomplete } from '@/app/components/ui/UserAutocomplete';
+import { Button } from '@/components/ui/button';
 
 export default function CreateSurveyPage() {
     const [title, setTitle] = useState('');

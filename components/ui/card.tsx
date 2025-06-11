@@ -1,18 +1,27 @@
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> { }
+
+export function Card({ className, ...props }: CardProps) {
     return (
         <div
-            className={`rounded-lg bg-white shadow-sm ${className || ''}`}
+            className={cn(
+                "rounded-lg border border-gray-200 bg-white shadow-sm",
+                className
+            )}
             {...props}
         />
     )
 }
 
-export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({ className, ...props }: CardProps) {
     return (
         <div
-            className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}
+            className={cn(
+                "flex flex-col space-y-1.5 p-6",
+                className
+            )}
             {...props}
         />
     )
@@ -21,15 +30,24 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
     return (
         <h3
-            className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`}
+            className={cn(
+                "text-2xl font-semibold leading-none tracking-tight",
+                className
+            )}
             {...props}
         />
     )
 }
 
-export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardContent({ className, ...props }: CardProps) {
     return (
-        <div className={`p-6 pt-0 ${className || ''}`} {...props} />
+        <div
+            className={cn(
+                "p-6 pt-0",
+                className
+            )}
+            {...props}
+        />
     )
 }
 

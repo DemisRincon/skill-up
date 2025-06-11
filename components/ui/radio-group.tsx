@@ -1,13 +1,16 @@
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
-export function RadioGroup({ className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
-    return (
-        <div className={` gap-8 ${className}`} {...props} />
-    )
-}
+interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 interface RadioGroupItemProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    label: string
+    label: string;
+}
+
+export function RadioGroup({ className = '', ...props }: RadioGroupProps) {
+    return (
+        <div className={cn("space-y-4", className)} {...props} />
+    )
 }
 
 export function RadioGroupItem({ className = '', label, ...props }: RadioGroupItemProps) {
@@ -15,7 +18,10 @@ export function RadioGroupItem({ className = '', label, ...props }: RadioGroupIt
         <label className="flex items-center space-x-2">
             <input
                 type="radio"
-                className={`h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 ${className}`}
+                className={cn(
+                    "h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500",
+                    className
+                )}
                 {...props}
             />
             <span className="text-sm font-medium text-gray-700">{label}</span>

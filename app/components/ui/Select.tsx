@@ -1,4 +1,5 @@
 import { SelectHTMLAttributes } from 'react';
+import { cn } from "@/lib/utils";
 
 interface Option {
     value: string;
@@ -20,19 +21,18 @@ export function Select({
     className = '',
     ...props
 }: SelectProps) {
-    const baseStyles = 'block w-full px-3 py-2 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm';
-    const errorStyles = error ? 'border-red-300' : 'border-gray-300';
-    const widthClass = fullWidth ? 'w-full' : '';
+    const baseStyles = 'block w-full rounded-md border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500';
+    const errorStyles = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300';
 
     return (
-        <div className={widthClass}>
+        <div className={cn(fullWidth && "w-full")}>
             {label && (
                 <label htmlFor={props.id} className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
                 </label>
             )}
             <select
-                className={`${baseStyles} ${errorStyles} ${className}`}
+                className={cn(baseStyles, errorStyles, className)}
                 {...props}
             >
                 {options.map((option) => (

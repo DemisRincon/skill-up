@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/app/components/layouts/AuthLayout';
 import { Input } from '@/app/components/ui/Input';
-import { Button } from '@/app/components/ui/Button';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
 
 function LoginForm() {
     const [email, setEmail] = useState('');
