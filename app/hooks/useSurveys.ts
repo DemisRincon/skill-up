@@ -23,7 +23,7 @@ export interface BatchSurvey extends Survey {
     batchSurveys: Survey[];
 }
 
-export function useSurveys(roleId: number | null = null, userEmail: string | null = null) {
+export function useSurveys(roleId: number | null = null, userEmail: string | null = null, pending:boolean=false) {
     const [surveys, setSurveys] = useState<Survey[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -36,8 +36,9 @@ export function useSurveys(roleId: number | null = null, userEmail: string | nul
             setLoading(true);
             setError(null);
             try {
-                let query = supabase.from('surveys').select('*');
-                
+                console.log(pending);
+                let query = pending ? supabase.from('surveys').select('*').eq('responded', false) : supabase.from('surveys').select('*');
+
                 if (roleId === 1) {
                     // Manager view
                     const { data: { user }, error: userError } = await supabase.auth.getUser();

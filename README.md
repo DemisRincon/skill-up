@@ -1,62 +1,173 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skill Up Leader - Leadership Feedback Platform
 
-## Why Next.js?
+A modern web application for collecting and analyzing leadership feedback surveys, built with Next.js 15 and Supabase.
 
-This project uses Next.js to minimize configuration overhead and development time. Next.js provides:
-- Built-in routing and API routes
-- Server-side rendering and static site generation
-- Automatic code splitting
-- Built-in CSS and Sass support
-- Zero configuration needed for most features
+## Tech Stack & Dependencies
+
+### Core Framework
+- **Next.js 15.3.3**
+  - React 19.0.0
+  - TypeScript 5
+  - App Router architecture
+  - Server-side rendering
+  - API routes
+  - Built-in optimizations
+
+### UI & Styling
+- **Tailwind CSS 4**
+  - Utility-first CSS framework
+  - Custom design system
+  - Responsive design
+  - Dark mode support
+
+### Icons & UI Components
+- **Heroicons 2.2.0**
+  - Beautiful hand-crafted SVG icons
+  - Consistent icon system
+- **Lucide React 0.514.0**
+  - Additional icon set
+  - Customizable icons
+
+### Database & Authentication
+- **Supabase 2.24.3**
+  - PostgreSQL database
+  - Authentication system
+  - Real-time capabilities
+  - Row Level Security
+- **@supabase/auth-helpers-nextjs 0.10.0**
+  - Next.js integration
+  - Auth helpers
+  - Session management
+
+### Email Integration
+- **@emailjs/browser 4.4.1**
+  - Email template system
+  - Survey notifications
+  - User communications
+
+### Utilities
+- **clsx 2.1.1**
+  - Class name utilities
+  - Conditional classes
+- **tailwind-merge 3.3.1**
+  - Tailwind class merging
+  - Style conflict resolution
+- **uuid 11.1.0**
+  - Unique ID generation
+  - Survey and response tracking
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18.17 or later
+- npm or yarn
+- Supabase account
 
+### Environment Setup
+1. Clone the repository
 ```bash
+git clone https://github.com/yourusername/skill-up.git
+cd skill-up
+```
+
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables
+Create a `.env.local` file in the root directory with the following variables:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_emailjs_key
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+```
+
+### Development
+```bash
+# Run development server
 npm run dev
 # or
 yarn dev
+
+# Lint code
+npm run lint
 # or
-pnpm dev
-# or
-bun dev
+yarn lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Production Build
+```bash
+# Build for production
+npm run build
+# or
+yarn build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Start production server
+npm run start
+# or
+yarn start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
+```
+skill-up/
+├── app/                    # Next.js app directory
+│   ├── components/        # React components
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility functions
+│   └── types/            # TypeScript types
+├── components/            # Shared UI components
+├── public/               # Static assets
+└── styles/              # Global styles
+```
 
-## Learn More
+## Features
+- User authentication with Supabase
+- Survey creation and management
+- Real-time survey responses
+- Email notifications with EmailJS
+- Data visualization
+- Responsive design
+- Dark mode support
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development Tools
+- **ESLint 9**
+  - Code quality
+  - Style enforcement
+  - Next.js specific rules
+- **TypeScript 5**
+  - Type safety
+  - Better developer experience
+  - Enhanced code quality
 
 ## Deployment
 
-This project is deployed on [Netlify](https://www.netlify.com/) for simplicity and ease of use. Netlify provides:
-- Continuous deployment from Git
-- Automatic HTTPS
-- Global CDN
-- Serverless functions support
-- Easy environment variable management
-
-To deploy your own version:
+### Vercel (Recommended)
 1. Push your code to a Git repository
-2. Connect your repository to Netlify
-3. Netlify will automatically detect Next.js and configure the build settings
-4. Your site will be live in minutes!
+2. Import your project to Vercel
+3. Configure environment variables
+4. Deploy!
 
-Check out [Netlify's Next.js deployment guide](https://docs.netlify.com/integrations/frameworks/next-js/overview/) for more details.
+### Netlify
+1. Push your code to a Git repository
+2. Connect to Netlify
+3. Configure build settings:
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+4. Add environment variables
+5. Deploy!
 
-## Deploy on Vercel
+## Contributing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

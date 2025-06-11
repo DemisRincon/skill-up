@@ -11,7 +11,8 @@ export default function PendingSurveys() {
     const { userProfile, isLoading: userLoading, error: userError } = useUser();
     const { surveys, loading: surveysLoading, error: surveysError } = useSurveys(
         userProfile?.role_id ?? null,
-        userProfile?.email ?? null
+        userProfile?.email ?? null,
+        true
     );
 
     if (userLoading || surveysLoading) {
