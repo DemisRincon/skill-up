@@ -1,45 +1,40 @@
-import { ButtonHTMLAttributes } from 'react';
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: 'primary' | 'secondary' | 'destructive';
     isLoading?: boolean;
-    variant?: 'primary' | 'secondary';
     fullWidth?: boolean;
 }
 
-export function Button({
-    children,
-    isLoading,
-    variant = 'primary',
-    fullWidth = false,
-    className = '',
-    disabled,
-    ...props
-}: ButtonProps) {
-    const baseStyles = 'group relative flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2';
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+    ({ className, variant = 'primary', isLoading, fullWidth, children, ...props }, ref) => {
+        return (
+            <button
+                ref={ref}
+                className={cn(
+                    'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+                    {
+                        'bg-indigo-600 text-white hover:bg-indigo-700': variant === 'primary',
+                        'bg-gray-100 text-gray-900 hover:bg-gray-200': variant === 'secondary',
+                        'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
+                        'w-full': fullWidth,
+                    },
+                    'h-10 py-2 px-4',
+                    className
+                )}
+                disabled={isLoading}
+                {...props}
+            >
+                {isLoading ? (
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : null}
+                {children}
+            </button>
+        );
+    }
+);
 
-    const variants = {
-        primary: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
-        secondary: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-500',
-    };
+Button.displayName = 'Button';
 
-    const widthClass = fullWidth ? 'w-full' : '';
-    const disabledClass = (disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : '';
-
-    return (
-        <button
-            className={`${baseStyles} ${variants[variant]} ${widthClass} ${disabledClass} ${className}`}
-            disabled={disabled || isLoading}
-            {...props}
-        >
-            {isLoading ? (
-                <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Loading...
-                </span>
-            ) : children}
-        </button>
-    );
-} 
+export { Button }; 

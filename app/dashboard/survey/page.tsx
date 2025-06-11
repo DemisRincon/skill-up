@@ -7,6 +7,8 @@ interface Survey {
     id: string;
     title: string;
     created_at: string;
+    batch_id?: string;
+    responded?: boolean;
 }
 
 export default function SurveyListPage() {
@@ -26,7 +28,7 @@ export default function SurveyListPage() {
                 if (userError || !user) throw userError || new Error('User not found');
                 const { data, error: surveysError } = await supabase
                     .from('surveys')
-                    .select('id, title, created_at')
+                    .select('*')
                     .eq('manager_id', user.id)
                     .order('created_at', { ascending: false });
                 if (surveysError) throw surveysError;
@@ -40,10 +42,26 @@ export default function SurveyListPage() {
         fetchSurveys();
     }, []);
 
-    // Filter logic
-    const filteredSurveys = surveys.filter(survey => {
-        const matchesTitle = survey.title.toLowerCase().includes(titleFilter.toLowerCase());
-        const createdAt = new Date(survey.created_at);
+    // Group by batch_id
+    const surveysByBatch: { [batchId: string]: Survey[] } = {};
+    surveys.forEach(survey => {
+        const batchId = survey.batch_id || survey.id;
+        if (!surveysByBatch[batchId]) {
+            surveysByBatch[batchId] = [];
+        }
+        surveysByBatch[batchId].push(survey);
+    });
+
+    const batchList = Object.values(surveysByBatch).map(batchSurveys => ({
+        ...batchSurveys[0],
+        applicantCount: batchSurveys.length,
+        respondedCount: batchSurveys.filter(s => s.responded).length,
+    }));
+
+    // Filter logic (applies to batchList)
+    const filteredBatches = batchList.filter(batch => {
+        const matchesTitle = batch.title.toLowerCase().includes(titleFilter.toLowerCase());
+        const createdAt = new Date(batch.created_at);
         const matchesStart = startDate ? createdAt >= new Date(startDate) : true;
         const matchesEnd = endDate ? createdAt <= new Date(endDate + 'T23:59:59') : true;
         return matchesTitle && matchesStart && matchesEnd;
@@ -86,19 +104,21 @@ export default function SurveyListPage() {
                 <div>Loading...</div>
             ) : error ? (
                 <div className="text-red-600">{error}</div>
-            ) : filteredSurveys.length === 0 ? (
+            ) : filteredBatches.length === 0 ? (
                 <div>No surveys found.</div>
             ) : (
                 <ul className="space-y-4">
-                    {filteredSurveys.map(survey => (
-                        <li key={survey.id} className="border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                    {filteredBatches.map(batch => (
+                        <li key={batch.batch_id || batch.id} className="border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
                             <div>
-                                <div className="font-semibold text-lg">{survey.title}</div>
-                                <div className="text-xs text-gray-500">Created: {new Date(survey.created_at).toLocaleString()}</div>
+                                <div className="font-semibold text-lg">{batch.title}</div>
+                                <div className="text-xs text-gray-500">Created: {new Date(batch.created_at).toLocaleString()}</div>
+                                <div className="text-xs text-gray-500">Applicants: {batch.applicantCount}</div>
+                                <div className="text-xs text-gray-500">Responded: {batch.respondedCount}</div>
                             </div>
                             <div className="flex gap-4 mt-2 md:mt-0">
-                                <Link href={`/dashboard/survey/${survey.id}/created`} className="text-indigo-600 underline">View Created</Link>
-                                <Link href={`/dashboard/survey/${survey.id}/results`} className="text-green-600 underline">View Results</Link>
+                                <Link href={`/dashboard/survey/${batch.id}/created`} className="text-indigo-600 underline">View Created</Link>
+                                <Link href={`/dashboard/survey/${batch.id}/results`} className="text-green-600 underline">View Results</Link>
                             </div>
                         </li>
                     ))}
