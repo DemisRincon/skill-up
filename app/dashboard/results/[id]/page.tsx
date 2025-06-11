@@ -35,8 +35,8 @@ export default function BatchResultsPage() {
                     .eq("batch_id", batchId);
                 if (surveysError) throw surveysError;
                 setSurveys(data || []);
-            } catch (err: any) {
-                setError(err.message || "Failed to fetch batch surveys");
+            } catch (err: Error | unknown) {
+                setError(err instanceof Error ? err.message : "Failed to fetch batch surveys");
             } finally {
                 setLoading(false);
             }
@@ -61,10 +61,6 @@ export default function BatchResultsPage() {
         return Number.isInteger(avg) ? avg.toString() : avg.toFixed(2);
     };
 
-    const avgA1 = calculateAverage(1);
-    const avgA2 = calculateAverage(2);
-    const avgA3 = calculateAverage(3);
-    console.log(surveys)
     return (
         <div className="max-w-2xl mx-auto p-8">
             <h1 className="text-2xl font-bold mb-6">Batch Results</h1>

@@ -1,8 +1,6 @@
 import * as React from "react"
 
-interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> { }
-
-export function RadioGroup({ className = '', ...props }: RadioGroupProps) {
+export function RadioGroup({ className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div className={` gap-8 ${className}`} {...props} />
     )

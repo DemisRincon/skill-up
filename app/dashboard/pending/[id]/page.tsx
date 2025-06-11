@@ -1,165 +1,102 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface Survey {
-    id: string;
-    title: string;
-    description: string;
-    questions: string[];
-    team_member_email: string;
-    manager_id: string;
-    created_at: string;
-}
+import { useUserData } from "@/app/hooks/useUserData";
+import { useSurveyResponses } from "@/app/hooks/useSurveyResponses";
+import { useSurveyData } from "@/app/hooks/useSurveyData";
+import { SurveyDebugInfo } from "@/app/components/survey/SurveyDebugInfo";
+import { SurveyQuestion } from "@/app/components/survey/SurveyQuestion";
+import { Loader2 } from "lucide-react";
 
 export default function RespondSurveyPage() {
-    const [survey, setSurvey] = useState<Survey | null>(null);
-    const [answers, setAnswers] = useState<Record<string, number>>({});
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const params = useParams();
-    const supabase = createClientComponentClient();
-    const [userEmail, setUserEmail] = useState<string | null>(null);
-
     const { id } = params as { id: string };
-    useEffect(() => {
-        const fetchSurvey = async () => {
-            setLoading(true);
-            setError(null);
-            console.log(id)
-            // Fetch survey only
-            const { data: surveyData, error: surveyError } = await supabase
-                .from('surveys')
-                .select('*')
-                .eq('id', id)
-                .single();
-            console.log(surveyData)
-            if (surveyError) {
-                setError('Error fetching survey: ' + surveyError.message);
-                setLoading(false);
-                return;
-            }
 
-            setSurvey(surveyData);
-            setLoading(false);
-        };
-        fetchSurvey();
-        // Fetch user email
-        const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) setUserEmail(user.email ?? null);
-        };
-        fetchUser();
-    }, [params, supabase]);
+    const { survey, error: surveyError, loading } = useSurveyData(id);
+    const { userEmail } = useUserData();
+    const {
+        answers,
+        error: responseError,
+        handleAnswerChange,
+        handleSubmit
+    } = useSurveyResponses(id, () => router.push('/dashboard/pending'));
 
-    const handleAnswerChange = (index: number, value: number) => {
-        setAnswers(prev => ({ ...prev, [index]: value }));
-    };
-
-
-    console.log(answers)
-
-    const handleSubmit = async () => {
-        try {
-            if (!survey) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                setError('You must be logged in to submit responses');
-                return;
-            }
-
-            if (survey.team_member_email !== user.email) {
-                setError('You can only respond to surveys assigned to you');
-                return;
-            }
-
-            if (Object.keys(answers).length !== survey.questions?.length) {
-                setError('Please answer all questions');
-                return;
-            }
-
-            const { error: updateError } = await supabase
-                .from('surveys')
-                .update({
-                    a1: answers[0],
-                    a2: answers[1],
-                    a3: answers[2],
-                    responded: true,
-
-                })
-                .eq('id', id);
-
-            if (updateError) {
-                throw updateError;
-            }
-
-            // Success - redirect to pending surveys
-            router.push('/dashboard/pending');
-        } catch (error) {
-            console.error('Error submitting survey:', error);
-            setError('Failed to submit survey responses. Please try again.');
-        }
-    };
+    const error = surveyError || responseError;
 
     if (loading) {
-        return <div className="p-8">Loading...</div>;
-    }
-    if (error) {
-        return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
-    }
-    if (!survey) {
-        return <div className="p-8">Survey not found.</div>;
-    }
-    return (
-        <div className="max-w-xl mx-auto p-8">
-            {/* DEBUG INFO */}
-            <div className="text-xs text-gray-400 mb-2">
-                <div>Current user email: {userEmail}</div>
-                <div>Survey assigned to: {survey.team_member_email}</div>
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>{survey.title}</CardTitle>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-xl mx-auto p-8">
+                <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    if (!survey) {
+        return (
+            <div className="max-w-xl mx-auto p-8">
+                <Card>
+                    <CardContent className="p-6">
+                        <p className="text-center text-muted-foreground">Survey not found.</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    const isComplete = Object.keys(answers).length === survey.questions?.length;
+
+    return (
+        <div className="max-w-2xl mx-auto p-8">
+            <SurveyDebugInfo userEmail={userEmail} assignedEmail={survey.team_member_email} />
+            <Card className="shadow-lg">
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-2xl font-bold">{survey.title}</CardTitle>
+                    <p className="text-base text-muted-foreground">{survey.description}</p>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <p className="text-gray-600">{survey.description}</p>
-                    {survey.questions?.map((question, index) => (
-                        <div key={index} className="space-y-4">
-                            <Label>{question}</Label>
-                            <RadioGroup className="flex flex-row gap-2 ">
-                                {[1, 2, 3, 4, 5].map((rating) => (
-                                    <RadioGroupItem
-                                        key={rating}
-                                        label={rating.toString()}
-                                        name={`question-${index}`}
-                                        value={rating.toString()}
-                                        checked={answers[index] === rating}
-                                        onChange={() => handleAnswerChange(index, rating)}
-                                    />
-                                ))}
-                            </RadioGroup>
-                        </div>
-                    ))}
+                <CardContent className="space-y-8">
+                    <div className="space-y-6">
+                        {survey.questions?.map((question, index) => (
+                            <SurveyQuestion
+                                key={index}
+                                question={question}
+                                index={index}
+                                value={answers[index]}
+                                onChange={handleAnswerChange}
+                            />
+                        ))}
+                    </div>
                     {error && (
                         <Alert variant="destructive">
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={Object.keys(answers).length !== survey.questions?.length}
-                    >
-                        Submit Responses
-                    </Button>
+                    <div className="flex justify-between items-center pt-4">
+                        <p className="text-sm text-muted-foreground">
+                            {isComplete ? 'All questions answered' : 'Please answer all questions'}
+                        </p>
+                        <Button
+                            onClick={() => handleSubmit(survey)}
+                            disabled={!isComplete}
+                            size="lg"
+                            className="min-w-[120px]"
+                        >
+                            Submit
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>

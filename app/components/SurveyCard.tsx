@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { Survey } from '../types/survey';
 
 interface SurveyCardProps {
-    survey: Survey;
+    survey?: Survey;
     currentUserEmail: string;
 }
 
 export const SurveyCard = ({ survey, currentUserEmail }: SurveyCardProps) => {
+    console.log(survey);
+    if (!survey) return null;
     return (
         <Card>
             <CardHeader>

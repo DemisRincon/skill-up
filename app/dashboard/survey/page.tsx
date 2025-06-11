@@ -1,155 +1,73 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import Link from 'next/link';
-
-interface Survey {
-    id: string;
-    title: string;
-    created_at: string;
-    batch_id?: string;
-    responded?: boolean;
-    a1?: number;
-    a2?: number;
-    a3?: number;
-    team_member_email?: string;
-}
+import { useSurveys } from '@/app/hooks/useSurveys';
+import { SurveyFilters } from '@/app/components/SurveyFilters';
+import { SurveyBatchItem } from '@/app/components/SurveyBatchItem';
+import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
 export default function SurveyListPage() {
-    const [surveys, setSurveys] = useState<Survey[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [titleFilter, setTitleFilter] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [expandedBatch, setExpandedBatch] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchSurveys = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                if (userError || !user) throw userError || new Error('User not found');
-                const { data, error: surveysError } = await supabase
-                    .from('surveys')
-                    .select('*')
-                    .eq('manager_id', user.id)
-                    .order('created_at', { ascending: false });
-                if (surveysError) throw surveysError;
-                setSurveys(data || []);
-            } catch (err: Error | unknown) {
-                setError(err instanceof Error ? err.message : 'Failed to fetch surveys');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchSurveys();
-    }, []);
-
-    // Group by batch_id
-    const surveysByBatch: { [batchId: string]: Survey[] } = {};
-    surveys.forEach(survey => {
-        const batchId = survey.batch_id || survey.id;
-        if (!surveysByBatch[batchId]) {
-            surveysByBatch[batchId] = [];
-        }
-        surveysByBatch[batchId].push(survey);
-    });
-
-    const batchList = Object.values(surveysByBatch).map(batchSurveys => ({
-        ...batchSurveys[0],
-        applicantCount: batchSurveys.length,
-        respondedCount: batchSurveys.filter(s => s.responded).length,
-        batchSurveys
-    }));
-
-    // Filter logic (applies to batchList)
-    const filteredBatches = batchList.filter(batch => {
-        const matchesTitle = batch.title.toLowerCase().includes(titleFilter.toLowerCase());
-        const createdAt = new Date(batch.created_at);
-        const matchesStart = startDate ? createdAt >= new Date(startDate) : true;
-        const matchesEnd = endDate ? createdAt <= new Date(endDate + 'T23:59:59') : true;
-        return matchesTitle && matchesStart && matchesEnd;
-    });
-
-    // Helper to calculate statistics
-    function getBatchStats(batchSurveys: Survey[]) {
-        const answered = batchSurveys.filter(s => s.responded && s.a1 && s.a2 && s.a3);
-        const avg = (arr: number[]) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 'N/A';
-        return {
-            responseRate: `${answered.length} / ${batchSurveys.length}`,
-            avgA1: avg(answered.map(s => s.a1!)),
-            avgA2: avg(answered.map(s => s.a2!)),
-            avgA3: avg(answered.map(s => s.a3!)),
-        };
-    }
+    const {
+        loading,
+        error,
+        titleFilter,
+        setTitleFilter,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
+        filteredBatches
+    } = useSurveys();
 
     return (
-        <div className="max-w-2xl mx-auto p-8">
-            <h1 className="text-2xl font-bold mb-6">My Surveys</h1>
-            <div className="mb-6 flex flex-col md:flex-row md:items-end gap-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1">Title</label>
-                    <input
-                        type="text"
-                        value={titleFilter}
-                        onChange={e => setTitleFilter(e.target.value)}
-                        className="border rounded px-2 py-1 w-full"
-                        placeholder="Search by title"
-                    />
+        <div className="min-h-screen bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900">My Surveys</h1>
+                    <p className="mt-2 text-sm text-gray-600">
+                        Manage and view your survey results
+                    </p>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Start Date</label>
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={e => setStartDate(e.target.value)}
-                        className="border rounded px-2 py-1 w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">End Date</label>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={e => setEndDate(e.target.value)}
-                        className="border rounded px-2 py-1 w-full"
-                    />
-                </div>
+
+                <SurveyFilters
+                    titleFilter={titleFilter}
+                    setTitleFilter={setTitleFilter}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                />
+
+                {loading ? (
+                    <LoadingSpinner />
+                ) : error ? (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                                <div className="mt-2 text-sm text-red-700">{error}</div>
+                            </div>
+                        </div>
+                    </div>
+                ) : filteredBatches.length === 0 ? (
+                    <div className="text-center py-12">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">No surveys found</h3>
+                        <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                    </div>
+                ) : (
+                    <ul className="space-y-4">
+                        {filteredBatches.map(batch => (
+                            <SurveyBatchItem key={batch.batch_id || batch.id} batch={batch} />
+                        ))}
+                    </ul>
+                )}
             </div>
-            {loading ? (
-                <div>Loading...</div>
-            ) : error ? (
-                <div className="text-red-600">{error}</div>
-            ) : filteredBatches.length === 0 ? (
-                <div>No surveys found.</div>
-            ) : (
-                <ul className="space-y-4">
-                    {filteredBatches.map(batch => {
-                        const stats = getBatchStats(batch.batchSurveys);
-                        return (
-                            <li key={batch.batch_id || batch.id} className="border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                                <div>
-                                    <div className="font-semibold text-lg">{batch.title}</div>
-                                    <div className="text-xs text-gray-500">Created: {new Date(batch.created_at).toISOString().replace('T', ' ').slice(0, 19)}</div>
-                                    <div className="text-xs text-gray-500">Applicants: {batch.applicantCount}</div>
-                                    <div className="text-xs text-gray-500">Responded: {batch.respondedCount}</div>
-                                </div>
-                                <div className="flex gap-4 mt-2 md:mt-0">
-                                    <Link
-                                        href={`/dashboard/results/${batch.batch_id || batch.id}`}
-                                        className="text-green-600 underline"
-                                    >
-                                        View Results
-                                    </Link>
-                                    <Link href={`/dashboard/survey/${batch.id}/created`} className="text-indigo-600 underline">View Created</Link>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
         </div>
     );
 } 

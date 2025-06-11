@@ -1,17 +1,15 @@
 import * as React from "react"
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> { }
-
-export function Card({ className, ...props }: CardProps) {
+export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={`rounded-lg border bg-white shadow-sm ${className || ''}`}
+            className={`rounded-lg bg-white shadow-sm ${className || ''}`}
             {...props}
         />
     )
 }
 
-export function CardHeader({ className, ...props }: CardProps) {
+export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}
@@ -29,13 +27,13 @@ export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHead
     )
 }
 
-export function CardContent({ className, ...props }: CardProps) {
+export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div className={`p-6 pt-0 ${className || ''}`} {...props} />
     )
 }
 
-export function CardFooter({ className, ...props }: CardProps) {
+export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             className={`flex items-center p-6 pt-0 ${className || ''}`}
