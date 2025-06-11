@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/app/components/ui/Button';
+import { User } from '@supabase/supabase-js';
 
 export default function DashboardPage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isManager, setIsManager] = useState(false);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -39,7 +40,7 @@ export default function DashboardPage() {
                 if (roleError) throw roleError;
 
                 setIsManager(role.name === 'manager');
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Error loading user:', error);
                 router.push('/auth/login');
             } finally {
@@ -73,10 +74,15 @@ export default function DashboardPage() {
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 p-4">
                 <h2 className="text-2xl font-bold mb-4">Welcome to Skill Up Leader</h2>
                 <p className="text-gray-600 mb-2">
-                    This is where you'll manage your surveys and team members.
+                    This is where you&apos;ll manage your surveys and team members.
                 </p>
                 <div className="mt-4 text-gray-700">
                     <span className="font-semibold">Logged in as:</span> {user?.user_metadata?.name || user?.email}
+                </div>
+                <div className="mt-4">
+                    <Button onClick={handleSignOut} variant="secondary" fullWidth>
+                        Sign Out
+                    </Button>
                 </div>
                 {isManager && (
                     <div className="mt-6">

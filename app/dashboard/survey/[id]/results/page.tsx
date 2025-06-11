@@ -1,4 +1,4 @@
-export default function SurveyResultsPage({ params }: { params: { id: string } }) {
+export default function SurveyResultsPage() {
     // Fetch and display analytics here
     return (
         <div className="max-w-xl mx-auto p-8">

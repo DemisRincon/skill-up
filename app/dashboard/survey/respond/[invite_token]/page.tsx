@@ -1,14 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+'use client';
 
-export default function SurveyRespondPage({ params }: { params: { invite_token: string } }) {
-    const [invite, setInvite] = useState<any>(null);
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useSearchParams } from 'next/navigation';
+
+interface SurveyInvite {
+    id: number;
+    team_member_name: string;
+    responded: boolean;
+}
+
+export default function SurveyRespondPage() {
+    const [invite, setInvite] = useState<SurveyInvite | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [answers, setAnswers] = useState<{ q1: number | null; q2: number | null; q3: number | null }>({ q1: null, q2: null, q3: null });
     const [submitted, setSubmitted] = useState(false);
-    const router = useRouter();
+
+    const params = useSearchParams();
+    const inviteToken = params.get('invite_token') || '';
 
     useEffect(() => {
         const fetchInvite = async () => {
@@ -17,7 +27,7 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
             const { data, error } = await supabase
                 .from('survey_invites')
                 .select('id, team_member_name, responded')
-                .eq('invite_token', params.invite_token)
+                .eq('invite_token', inviteToken)
                 .single();
             if (error || !data) {
                 setError('Invalid or expired survey link.');
@@ -29,7 +39,7 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
             setLoading(false);
         };
         fetchInvite();
-    }, [params.invite_token]);
+    }, [inviteToken]);
 
     const handleChange = (q: 'q1' | 'q2' | 'q3', value: number) => {
         setAnswers(prev => ({ ...prev, [q]: value }));
@@ -58,8 +68,8 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
                 .eq('id', invite.id);
             if (updateError) throw updateError;
             setSubmitted(true);
-        } catch (err: any) {
-            setError(err.message || 'Failed to submit response');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to submit response');
         } finally {
             setLoading(false);
         }
@@ -73,7 +83,7 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
                 <div className="max-w-xl mx-auto p-8 text-red-600">{error}</div>
             ) : submitted ? (
                 <div className="max-w-xl mx-auto p-8 text-green-700">Thank you for your feedback!</div>
-            ) : (
+            ) : invite ? (
                 <div className="max-w-xl mx-auto p-8">
                     <h1 className="text-2xl font-bold mb-4">Leadership Feedback Survey</h1>
                     <p className="mb-4">Hi {invite.team_member_name}, please rate the following statements from 1 (Strongly Disagree) to 5 (Strongly Agree):</p>
@@ -108,7 +118,7 @@ export default function SurveyRespondPage({ params }: { params: { invite_token: 
                         </button>
                     </form>
                 </div>
-            )}
+            ) : null}
         </>
     );
 } 

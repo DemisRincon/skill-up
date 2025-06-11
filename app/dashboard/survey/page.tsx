@@ -31,8 +31,8 @@ export default function SurveyListPage() {
                     .order('created_at', { ascending: false });
                 if (surveysError) throw surveysError;
                 setSurveys(data || []);
-            } catch (err: any) {
-                setError(err.message || 'Failed to fetch surveys');
+            } catch (err: Error | unknown) {
+                setError(err instanceof Error ? err.message : 'Failed to fetch surveys');
             } finally {
                 setLoading(false);
             }

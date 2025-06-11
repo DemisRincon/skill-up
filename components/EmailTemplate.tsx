@@ -26,7 +26,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
             lineHeight: '1.5',
             marginBottom: '20px'
         }}>
-            You have been invited to complete a Leadership Feedback Survey. This feedback is valuable for our team's growth and development.
+            You have been invited to complete a Leadership Feedback Survey. This feedback is valuable for our team&apos;s growth and development.
         </p>
 
         <p style={{
@@ -58,7 +58,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
             lineHeight: '1.5',
             marginTop: '20px'
         }}>
-            If the button above doesn't work, you can copy and paste this link into your browser:
+            If the button above doesn&apos;t work, you can copy and paste this link into your browser:
         </p>
 
         <p style={{

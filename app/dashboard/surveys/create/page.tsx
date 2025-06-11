@@ -111,8 +111,8 @@ export default function CreateSurveyPage() {
             });
 
             router.push(`/dashboard/survey/${survey.id}/created`);
-        } catch (err: any) {
-            setError(err.message || 'Failed to create survey');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to create survey');
         } finally {
             setLoading(false);
         }

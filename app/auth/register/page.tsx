@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+
 import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/app/components/layouts/AuthLayout';
 import { Input } from '@/app/components/ui/Input';
@@ -15,8 +15,6 @@ export default function RegisterPage() {
     const [role, setRole] = useState('manager');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
-
     const roleOptions = [
         { value: 'manager', label: 'Manager' },
         { value: 'team_member', label: 'Team Member' }
@@ -51,8 +49,8 @@ export default function RegisterPage() {
             if (profileError) throw profileError;
 
             window.location.href = '/dashboard';
-        } catch (error: any) {
-            setError(error.message || 'An error occurred during registration');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred during registration');
         } finally {
             setLoading(false);
         }

@@ -6,8 +6,9 @@ import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/app/components/layouts/AuthLayout';
 import { Input } from '@/app/components/ui/Input';
 import { Button } from '@/app/components/ui/Button';
+import { Suspense } from 'react';
 
-export default function LoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -49,9 +50,13 @@ export default function LoginPage() {
                 // The auth helpers will set the cookie for us
                 window.location.href = redirectTo;
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Login error:', error);
-            setError(error.message || 'An error occurred during login');
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('An error occurred during login');
+            }
         } finally {
             setLoading(false);
         }
@@ -100,5 +105,17 @@ export default function LoginPage() {
                 </Button>
             </form>
         </AuthLayout>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-xl">Loading...</div>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 } 
