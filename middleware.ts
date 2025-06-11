@@ -27,6 +27,33 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(redirectUrl);
     }
 
+    // Check for manager-only routes
+    if (session && req.nextUrl.pathname.startsWith('/dashboard/surveys/create')) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role_id')
+            .eq('id', session.user.id)
+            .single();
+
+        if (!profile) {
+            const redirectUrl = req.nextUrl.clone();
+            redirectUrl.pathname = '/dashboard';
+            return NextResponse.redirect(redirectUrl);
+        }
+
+        const { data: role } = await supabase
+            .from('roles')
+            .select('name')
+            .eq('id', profile.role_id)
+            .single();
+
+        if (!role || role.name !== 'manager') {
+            const redirectUrl = req.nextUrl.clone();
+            redirectUrl.pathname = '/dashboard';
+            return NextResponse.redirect(redirectUrl);
+        }
+    }
+
     return res;
 }
 

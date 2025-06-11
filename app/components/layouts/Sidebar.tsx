@@ -16,22 +16,40 @@ export default function Sidebar() {
                 if (!user) return;
 
                 // Get user's role
-                const { data: profile } = await supabase
+                const { data: profile, error: profileError } = await supabase
                     .from('profiles')
                     .select('role_id')
                     .eq('id', user.id)
                     .single();
 
-                if (!profile) return;
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError);
+                    return;
+                }
 
-                const { data: role } = await supabase
+                if (!profile) {
+                    console.log('No profile found for user:', user.id);
+                    return;
+                }
+
+                const { data: role, error: roleError } = await supabase
                     .from('roles')
                     .select('name')
                     .eq('id', profile.role_id)
                     .single();
 
-                if (!role) return;
+                if (roleError) {
+                    console.error('Error fetching role:', roleError);
+                    return;
+                }
+
+                if (!role) {
+                    console.log('No role found for profile:', profile.role_id);
+                    return;
+                }
+
                 setUserRole(role.name as 'manager' | 'team_member');
+                console.log('Set user role to:', role.name);
 
                 if (role.name === 'manager') {
                     // For managers: count pending responses in surveys
@@ -87,12 +105,14 @@ export default function Sidebar() {
                             <span className={collapsed ? '' : 'hidden'}>🏠</span>
                         </Link>
                     </li>
-                    <li>
-                        <Link href="/dashboard/surveys/create" className="block px-4 py-2 hover:bg-gray-700 rounded">
-                            <span className={collapsed ? 'hidden' : ''}>Create Survey</span>
-                            <span className={collapsed ? '' : 'hidden'}>➕</span>
-                        </Link>
-                    </li>
+                    {userRole === 'manager' && (
+                        <li>
+                            <Link href="/dashboard/surveys/create" className="block px-4 py-2 hover:bg-gray-700 rounded">
+                                <span className={collapsed ? 'hidden' : ''}>Create Survey</span>
+                                <span className={collapsed ? '' : 'hidden'}>➕</span>
+                            </Link>
+                        </li>
+                    )}
                     <li>
                         <Link href="/dashboard/survey" className="block px-4 py-2 hover:bg-gray-700 rounded">
                             <span className={collapsed ? 'hidden' : ''}>My Surveys</span>

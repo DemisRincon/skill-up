@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/app/components/ui/Button';
@@ -16,19 +16,6 @@ export default function CreateSurveyPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    const addQuestion = () => {
-        setQuestions([...questions, '']);
-    };
-
-    const removeQuestion = (index: number) => {
-        setQuestions(questions.filter((_, i) => i !== index));
-    };
-
-    const updateQuestion = (index: number, value: string) => {
-        const newQuestions = [...questions];
-        newQuestions[index] = value;
-        setQuestions(newQuestions);
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,6 +29,7 @@ export default function CreateSurveyPage() {
             return;
         }
 
+        const batchId = crypto.randomUUID();
         try {
             // Get current user
             const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -54,7 +42,9 @@ export default function CreateSurveyPage() {
                 manager_id: user.id,
                 questions: questions,
                 team_member_email: member.email,
-                responded: false
+                responded: false,
+                batch_id: batchId,
+                created_at: new Date().toISOString()
             }));
 
             const { error: surveyError } = await supabase
