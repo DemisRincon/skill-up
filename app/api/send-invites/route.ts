@@ -1,35 +1,86 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export async function POST(req: Request) {
+export async function POST(req: Request, res: Response) {
   try {
-    const { invites } = await req.json();
+    const {invites} = await req.json();
+
     if (!invites || !Array.isArray(invites)) {
-      return NextResponse.json({ error: 'Invalid invites array' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid invites data' }, { status: 400 });
     }
 
     const results = await Promise.all(invites.map(async (invite: any) => {
-      const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/survey/respond/${invite.invite_token}`;
       try {
-        await resend.emails.send({
-          from: 'noreply@yourdomain.com',
-          to: invite.team_member_email,
-          subject: 'You have been invited to complete a Leadership Feedback Survey',
-          html: `<p>Hello ${invite.team_member_name},</p>
-            <p>You have been invited to complete a leadership feedback survey. Please use the link below:</p>
-            <p><a href="${link}">${link}</a></p>
-            <p>This link is unique to you and your feedback will be anonymous.</p>`
+        if (!invite.team_member_email || !invite.team_member_name || !invite.invite_token) {
+          return { 
+            email: invite.team_member_email, 
+            status: 'error', 
+            error: 'Missing required fields' 
+          };
+        }
+
+        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/survey/respond/${invite.invite_token}`;
+        
+        const templateParams = {
+          to_email: invite.team_member_email,
+          to_name: invite.team_member_name,
+          survey_link: link,
+        };
+
+        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          auth: {
+            username: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+            password: process.env.EMAILJS_PRIVATE_KEY,
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_id: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+            template_id: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+            user_id: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+            template_params: templateParams,
+            accessToken: process.env.EMAILJS_PRIVATE_KEY,
+          }),
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('EmailJS error:', errorText);
+          
+          // Handle specific SMTP authentication errors
+          if (errorText.includes('Authentication failed')) {
+            return { 
+              email: invite.team_member_email, 
+              status: 'error', 
+              error: 'Email service authentication failed. Please check your Mailtrap credentials.' 
+            };
+          }
+          
+          return { 
+            email: invite.team_member_email, 
+            status: 'error', 
+            error: errorText || 'Failed to send email' 
+          };
+        }
+
         return { email: invite.team_member_email, status: 'sent' };
-      } catch (e) {
-        return { email: invite.team_member_email, status: 'error', error: e.message };
+      } catch (e: any) {
+        console.error('Error sending email:', e);
+        return { 
+          email: invite.team_member_email, 
+          status: 'error', 
+          error: e.message 
+        };
       }
     }));
 
     return NextResponse.json({ results });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Request processing error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to process request', 
+      details: error.message 
+    }, { status: 500 });
   }
 } 

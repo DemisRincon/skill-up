@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -17,7 +16,6 @@ export default function SurveyListPage() {
     const [titleFilter, setTitleFilter] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const router = useRouter();
 
     useEffect(() => {
         const fetchSurveys = async () => {

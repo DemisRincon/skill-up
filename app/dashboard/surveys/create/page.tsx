@@ -110,7 +110,7 @@ export default function CreateSurveyPage() {
                 body: JSON.stringify({ invites }),
             });
 
-            router.push(`/survey/${survey.id}/created`);
+            router.push(`/dashboard/survey/${survey.id}/created`);
         } catch (err: any) {
             setError(err.message || 'Failed to create survey');
         } finally {
