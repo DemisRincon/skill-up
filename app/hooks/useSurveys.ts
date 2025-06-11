@@ -59,7 +59,7 @@ export function useSurveys(roleId: number | null = null, userEmail: string | nul
             }
         };
         fetchSurveys();
-    }, [roleId, userEmail]);
+    }, [roleId, userEmail, pending]);
 
     // Group by batch_id
     const surveysByBatch: { [batchId: string]: Survey[] } = {};

@@ -1,13 +1,11 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> { }
-
 interface RadioGroupItemProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
 }
 
-export function RadioGroup({ className = '', ...props }: RadioGroupProps) {
+export function RadioGroup({ className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div className={cn("space-y-4", className)} {...props} />
     )

@@ -1,9 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> { }
-
-export function Card({ className, ...props }: CardProps) {
+export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             className={cn(
@@ -15,7 +13,7 @@ export function Card({ className, ...props }: CardProps) {
     )
 }
 
-export function CardHeader({ className, ...props }: CardProps) {
+export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             className={cn(
@@ -39,7 +37,7 @@ export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHead
     )
 }
 
-export function CardContent({ className, ...props }: CardProps) {
+export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             className={cn(

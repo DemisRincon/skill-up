@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { BatchSurvey } from '../hooks/useSurveys';
-import { ChartBarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +9,7 @@ interface SurveyBatchItemProps {
 }
 
 export function SurveyBatchItem({ batch }: SurveyBatchItemProps) {
-    const responseRate = (batch.respondedCount / batch.applicantCount) * 100;
+
     const formattedDate = new Date(batch.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
