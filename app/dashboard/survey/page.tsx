@@ -9,6 +9,10 @@ interface Survey {
     created_at: string;
     batch_id?: string;
     responded?: boolean;
+    a1?: number;
+    a2?: number;
+    a3?: number;
+    team_member_email?: string;
 }
 
 export default function SurveyListPage() {
@@ -18,6 +22,7 @@ export default function SurveyListPage() {
     const [titleFilter, setTitleFilter] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [expandedBatch, setExpandedBatch] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchSurveys = async () => {
@@ -56,6 +61,7 @@ export default function SurveyListPage() {
         ...batchSurveys[0],
         applicantCount: batchSurveys.length,
         respondedCount: batchSurveys.filter(s => s.responded).length,
+        batchSurveys
     }));
 
     // Filter logic (applies to batchList)
@@ -66,6 +72,18 @@ export default function SurveyListPage() {
         const matchesEnd = endDate ? createdAt <= new Date(endDate + 'T23:59:59') : true;
         return matchesTitle && matchesStart && matchesEnd;
     });
+
+    // Helper to calculate statistics
+    function getBatchStats(batchSurveys: Survey[]) {
+        const answered = batchSurveys.filter(s => s.responded && s.a1 && s.a2 && s.a3);
+        const avg = (arr: number[]) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 'N/A';
+        return {
+            responseRate: `${answered.length} / ${batchSurveys.length}`,
+            avgA1: avg(answered.map(s => s.a1!)),
+            avgA2: avg(answered.map(s => s.a2!)),
+            avgA3: avg(answered.map(s => s.a3!)),
+        };
+    }
 
     return (
         <div className="max-w-2xl mx-auto p-8">
@@ -108,20 +126,28 @@ export default function SurveyListPage() {
                 <div>No surveys found.</div>
             ) : (
                 <ul className="space-y-4">
-                    {filteredBatches.map(batch => (
-                        <li key={batch.batch_id || batch.id} className="border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <div className="font-semibold text-lg">{batch.title}</div>
-                                <div className="text-xs text-gray-500">Created: {new Date(batch.created_at).toLocaleString()}</div>
-                                <div className="text-xs text-gray-500">Applicants: {batch.applicantCount}</div>
-                                <div className="text-xs text-gray-500">Responded: {batch.respondedCount}</div>
-                            </div>
-                            <div className="flex gap-4 mt-2 md:mt-0">
-                                <Link href={`/dashboard/survey/${batch.id}/created`} className="text-indigo-600 underline">View Created</Link>
-                                <Link href={`/dashboard/survey/${batch.id}/results`} className="text-green-600 underline">View Results</Link>
-                            </div>
-                        </li>
-                    ))}
+                    {filteredBatches.map(batch => {
+                        const stats = getBatchStats(batch.batchSurveys);
+                        return (
+                            <li key={batch.batch_id || batch.id} className="border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <div className="font-semibold text-lg">{batch.title}</div>
+                                    <div className="text-xs text-gray-500">Created: {new Date(batch.created_at).toISOString().replace('T', ' ').slice(0, 19)}</div>
+                                    <div className="text-xs text-gray-500">Applicants: {batch.applicantCount}</div>
+                                    <div className="text-xs text-gray-500">Responded: {batch.respondedCount}</div>
+                                </div>
+                                <div className="flex gap-4 mt-2 md:mt-0">
+                                    <Link
+                                        href={`/dashboard/results/${batch.batch_id || batch.id}`}
+                                        className="text-green-600 underline"
+                                    >
+                                        View Results
+                                    </Link>
+                                    <Link href={`/dashboard/survey/${batch.id}/created`} className="text-indigo-600 underline">View Created</Link>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </div>
