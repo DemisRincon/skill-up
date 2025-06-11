@@ -135,6 +135,14 @@ skill-up/
 - Responsive design
 - Dark mode support
 
+## Demo Video
+[![Skill Up Leader Demo](https://img.youtube.com/vi/QahUntuGaAw/0.jpg)](https://youtu.be/QahUntuGaAw)
+
+Click the thumbnail above to watch a demo of the application in action.
+
+## Live Application
+Visit the live application at: [https://skill-up-leader.netlify.app/](https://skill-up-leader.netlify.app/)
+
 ## Development Tools
 - **ESLint 9**
   - Code quality

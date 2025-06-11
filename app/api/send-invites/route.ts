@@ -25,7 +25,7 @@ export async function POST(req: Request) {
           };
         }
 
-        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/survey/respond/${invite.invite_token}`;
+        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://skill-up-leader.netlify.app/'}/dashboard/survey/respond/${invite.invite_token}`;
         
         const templateParams = {
           to_email: invite.team_member_email,
