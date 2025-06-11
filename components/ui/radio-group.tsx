@@ -4,7 +4,7 @@ interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function RadioGroup({ className = '', ...props }: RadioGroupProps) {
     return (
-        <div className={`grid gap-2 ${className}`} {...props} />
+        <div className={` gap-8 ${className}`} {...props} />
     )
 }
 

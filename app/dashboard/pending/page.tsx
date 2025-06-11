@@ -155,58 +155,7 @@ export default function PendingSurveys() {
         setError(null);
     };
 
-    if (selectedSurvey) {
-        return (
-            <div className="space-y-6">
-                <Button
-                    variant="outline"
-                    onClick={() => setSelectedSurvey(null)}
-                >
-                    Back to Surveys
-                </Button>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{selectedSurvey.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <p className="text-gray-600">{selectedSurvey.description}</p>
-
-                        {selectedSurvey.questions?.map((question) => (
-                            <div key={question.id} className="space-y-4">
-                                <Label>{question.text}</Label>
-                                <RadioGroup>
-                                    {[1, 2, 3, 4, 5].map((rating) => (
-                                        <RadioGroupItem
-                                            key={rating}
-                                            label={rating.toString()}
-                                            name={question.id}
-                                            value={rating.toString()}
-                                            checked={answers[question.id] === rating}
-                                            onChange={() => handleAnswerChange(question.id, rating)}
-                                        />
-                                    ))}
-                                </RadioGroup>
-                            </div>
-                        ))}
-
-                        {error && (
-                            <Alert variant="destructive">
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        )}
-
-                        <Button
-                            onClick={handleSubmit}
-                            disabled={Object.keys(answers).length !== selectedSurvey.questions?.length}
-                        >
-                            Submit Responses
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">

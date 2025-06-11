@@ -9,16 +9,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface Question {
-    id: string;
-    text: string;
-}
-
 interface Survey {
     id: string;
     title: string;
     description: string;
-    questions: Question[];
+    questions: string[];
     team_member_email: string;
     manager_id: string;
     created_at: string;
@@ -34,33 +29,26 @@ export default function RespondSurveyPage() {
     const supabase = createClientComponentClient();
     const [userEmail, setUserEmail] = useState<string | null>(null);
 
+    const { id } = params as { id: string };
     useEffect(() => {
         const fetchSurvey = async () => {
             setLoading(true);
             setError(null);
-            const { id } = params as { id: string };
+            console.log(id)
             // Fetch survey only
             const { data: surveyData, error: surveyError } = await supabase
                 .from('surveys')
                 .select('*')
                 .eq('id', id)
                 .single();
+            console.log(surveyData)
             if (surveyError) {
                 setError('Error fetching survey: ' + surveyError.message);
                 setLoading(false);
                 return;
             }
-            // Fetch questions for this survey
-            const { data: questionsData, error: questionsError } = await supabase
-                .from('questions')
-                .select('*')
-                .eq('survey_id', id);
-            if (questionsError) {
-                setError('Error fetching questions: ' + questionsError.message);
-                setLoading(false);
-                return;
-            }
-            setSurvey({ ...surveyData, questions: questionsData || [] });
+
+            setSurvey(surveyData);
             setLoading(false);
         };
         fetchSurvey();
@@ -72,41 +60,54 @@ export default function RespondSurveyPage() {
         fetchUser();
     }, [params, supabase]);
 
-    const handleAnswerChange = (questionId: string, value: number) => {
-        setAnswers(prev => ({ ...prev, [questionId]: value }));
+    const handleAnswerChange = (index: number, value: number) => {
+        setAnswers(prev => ({ ...prev, [index]: value }));
     };
 
+
+    console.log(answers)
+
     const handleSubmit = async () => {
-        if (!survey) return;
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        if (survey.team_member_email !== user.email) {
-            setError('You can only respond to surveys assigned to you');
-            return;
+        try {
+            if (!survey) return;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setError('You must be logged in to submit responses');
+                return;
+            }
+
+            if (survey.team_member_email !== user.email) {
+                setError('You can only respond to surveys assigned to you');
+                return;
+            }
+
+            if (Object.keys(answers).length !== survey.questions?.length) {
+                setError('Please answer all questions');
+                return;
+            }
+
+            const { error: updateError } = await supabase
+                .from('surveys')
+                .update({
+                    a1: answers[0],
+                    a2: answers[1],
+                    a3: answers[2],
+                    responded: true,
+
+                })
+                .eq('id', id);
+
+            if (updateError) {
+                throw updateError;
+            }
+
+            // Success - redirect to pending surveys
+            router.push('/dashboard/pending');
+        } catch (error) {
+            console.error('Error submitting survey:', error);
+            setError('Failed to submit survey responses. Please try again.');
         }
-        const responses = Object.entries(answers).map(([questionId, rating]) => ({
-            survey_id: survey.id,
-            question_id: questionId,
-            rating,
-            team_member_id: user.id
-        }));
-        const { error: responseError } = await supabase
-            .from('survey_responses')
-            .insert(responses);
-        if (responseError) {
-            setError('Error submitting responses');
-            return;
-        }
-        // Mark survey as responded
-        const { error: updateError } = await supabase
-            .from('surveys')
-            .update({ responded: true })
-            .eq('id', survey.id);
-        if (updateError) {
-            setError('Error updating survey status');
-            return;
-        }
-        router.push('/dashboard/pending');
     };
 
     if (loading) {
@@ -131,18 +132,18 @@ export default function RespondSurveyPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <p className="text-gray-600">{survey.description}</p>
-                    {survey.questions?.map((question) => (
-                        <div key={question.id} className="space-y-4">
-                            <Label>{question.text}</Label>
-                            <RadioGroup>
+                    {survey.questions?.map((question, index) => (
+                        <div key={index} className="space-y-4">
+                            <Label>{question}</Label>
+                            <RadioGroup className="flex flex-row gap-2 ">
                                 {[1, 2, 3, 4, 5].map((rating) => (
                                     <RadioGroupItem
                                         key={rating}
                                         label={rating.toString()}
-                                        name={question.id}
+                                        name={`question-${index}`}
                                         value={rating.toString()}
-                                        checked={answers[question.id] === rating}
-                                        onChange={() => handleAnswerChange(question.id, rating)}
+                                        checked={answers[index] === rating}
+                                        onChange={() => handleAnswerChange(index, rating)}
                                     />
                                 ))}
                             </RadioGroup>
