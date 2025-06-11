@@ -99,8 +99,8 @@ export default function SurveyListPage() {
                                 <div className="text-xs text-gray-500">Created: {new Date(survey.created_at).toLocaleString()}</div>
                             </div>
                             <div className="flex gap-4 mt-2 md:mt-0">
-                                <Link href={`/survey/${survey.id}/created`} className="text-indigo-600 underline">View Created</Link>
-                                <Link href={`/survey/${survey.id}/results`} className="text-green-600 underline">View Results</Link>
+                                <Link href={`/dashboard/survey/${survey.id}/created`} className="text-indigo-600 underline">View Created</Link>
+                                <Link href={`/dashboard/survey/${survey.id}/results`} className="text-green-600 underline">View Results</Link>
                             </div>
                         </li>
                     ))}
