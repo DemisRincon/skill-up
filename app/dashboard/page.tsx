@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/app/components/layouts/DashboardLayout';
+import { Button } from '@/app/components/ui/Button';
 
 export default function DashboardPage() {
     const [user, setUser] = useState<any>(null);
+    const [isManager, setIsManager] = useState(false);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
@@ -19,6 +21,25 @@ export default function DashboardPage() {
                     return;
                 }
                 setUser(user);
+
+                // Get user's role
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('role_id')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                const { data: role, error: roleError } = await supabase
+                    .from('roles')
+                    .select('name')
+                    .eq('id', profile.role_id)
+                    .single();
+
+                if (roleError) throw roleError;
+
+                setIsManager(role.name === 'manager');
             } catch (error) {
                 console.error('Error loading user:', error);
                 router.push('/auth/login');
@@ -58,6 +79,13 @@ export default function DashboardPage() {
                     <div className="mt-4 text-gray-700">
                         <span className="font-semibold">Logged in as:</span> {user?.user_metadata?.name || user?.email}
                     </div>
+                    {isManager && (
+                        <div className="mt-6">
+                            <Button onClick={() => router.push('/dashboard/surveys/create')} fullWidth>
+                                Create Survey
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </DashboardLayout>
