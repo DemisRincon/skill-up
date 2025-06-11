@@ -28,7 +28,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // Check for manager-only routes
-    if (session && req.nextUrl.pathname.startsWith('/dashboard/surveys/create')) {
+    if (session && (req.nextUrl.pathname.startsWith('/dashboard/surveys/create') || req.nextUrl.pathname.startsWith('/dashboard/survey'))) {
         const { data: profile } = await supabase
             .from('profiles')
             .select('role_id')

@@ -49,7 +49,7 @@ export default function Sidebar() {
                 }
 
                 setUserRole(role.name as 'manager' | 'team_member');
-                console.log('Set user role to:', role.name);
+
 
                 if (role.name === 'manager') {
                     // For managers: count pending responses in surveys
@@ -113,12 +113,14 @@ export default function Sidebar() {
                             </Link>
                         </li>
                     )}
-                    <li>
-                        <Link href="/dashboard/survey" className="block px-4 py-2 hover:bg-gray-700 rounded">
-                            <span className={collapsed ? 'hidden' : ''}>My Surveys</span>
-                            <span className={collapsed ? '' : 'hidden'}>📋</span>
-                        </Link>
-                    </li>
+                    {userRole === 'manager' && (
+                        <li>
+                            <Link href="/dashboard/survey" className="block px-4 py-2 hover:bg-gray-700 rounded">
+                                <span className={collapsed ? 'hidden' : ''}>My Surveys</span>
+                                <span className={collapsed ? '' : 'hidden'}>📋</span>
+                            </Link>
+                        </li>
+                    )}
                     <li>
                         <Link href="/dashboard/pending" className="block px-4 py-2 hover:bg-gray-700 rounded relative">
                             <span className={collapsed ? 'hidden' : ''}>
